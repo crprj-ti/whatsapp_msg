@@ -47,10 +47,9 @@ mongoose.connect(MONGODB_URI).then(() => {
 });
 
 // 2. Rota que o seu PHP na Hostinger irá chamar
-app.post('/enviar-panico', async (req, res) => {
+app.post('/enviar-mensagem', async (req, res) => {
     const { telefone, mensagem } = req.body;
     
-    // Impede envio se o WhatsApp ainda não estiver logado
     if (!client || !client.info) {
         return res.status(503).json({ error: 'Sistema iniciando ou aguardando QR Code.' });
     }
@@ -58,14 +57,14 @@ app.post('/enviar-panico', async (req, res) => {
     try {
         const chatId = `${telefone}@c.us`;
         await client.sendMessage(chatId, mensagem);
-        res.status(200).json({ status: 'sucesso', message: 'Alerta enviado pelo WhatsApp!' });
+        res.status(200).json({ status: 'sucesso', message: 'Mensagem enviada com sucesso!' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
 // Rota simples de healthcheck (obrigatório para o Render manter o app vivo)
-app.get('/', (req, res) => res.send('API Botão do Pânico - Online'));
+app.get('/', (req, res) => res.send('API Mensagem Whatsapp - Online'));
 
 // 3. Inicia o servidor Express
 app.listen(PORT, () => console.log(`Servidor Express rodando na porta ${PORT}`));
