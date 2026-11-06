@@ -7,13 +7,11 @@ const qrcode = require('qrcode-terminal');
 const app = express();
 app.use(express.json());
 
-// Configurações e Variáveis de Ambiente
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-let client; // Variável global para manter a sessão ativa
+let client;
 
-// 1. Conecta ao Banco de Dados e inicializa o WhatsApp
 mongoose.connect(MONGODB_URI).then(() => {
     console.log('Conectado ao MongoDB');
     const store = new MongoStore({ mongoose: mongoose });
@@ -27,12 +25,12 @@ mongoose.connect(MONGODB_URI).then(() => {
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage', 
-                '--disable-accelerated-2d-canvas', 
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
                 '--no-first-run',
-                '--no-zygote', 
-                '--single-process', 
-                '--disable-gpu' 
+                '--no-zygote',
+                '--single-process',
+                '--disable-gpu'
             ]
         },
         webVersionCache: {
@@ -41,10 +39,15 @@ mongoose.connect(MONGODB_URI).then(() => {
         }
     });
 
-    // Exibe o QR Code nos logs do Render para o primeiro acesso
+    // Só exibe o QR Code no terminal
     client.on('qr', (qr) => {
-        console.log('🚨 LEIA O QR CODE ABAIXO NO SEU WHATSAPP:');
+        console.log('🚨 NOVO QR CODE GERADO. ESCANEIE AGORA:');
         qrcode.generate(qr, { small: true });
+    });
+
+    // Avisa assim que o celular aprovar (Antes de baixar mensagens)
+    client.on('authenticated', () => {
+        console.log('🔐 Celular aceitou! Autenticando (Aguarde...)');
     });
 
     client.on('ready', () => {
@@ -55,17 +58,20 @@ mongoose.connect(MONGODB_URI).then(() => {
         console.log('💾 Sessão salva com sucesso no MongoDB.');
     });
 
+    client.on('auth_failure', (msg) => {
+        console.error('❌ Falha na autenticação:', msg);
+    });
+
     client.initialize();
+}).catch(err => {
+    console.error('Erro ao conectar no MongoDB:', err);
 });
 
-// 2. Rota que o seu PHP na Hostinger irá chamar
 app.post('/enviar-mensagem', async (req, res) => {
     const { telefone, mensagem } = req.body;
-    
     if (!client || !client.info) {
         return res.status(503).json({ error: 'Sistema iniciando ou aguardando QR Code.' });
     }
-    
     try {
         const chatId = `${telefone}@c.us`;
         await client.sendMessage(chatId, mensagem);
@@ -75,8 +81,6 @@ app.post('/enviar-mensagem', async (req, res) => {
     }
 });
 
-// Rota simples de healthcheck (obrigatório para o Render manter o app vivo)
-app.get('/', (req, res) => res.send('API Mensagem Whatsapp - Online'));
+app.get('/', (req, res) => res.send('API WhatsApp Online'));
 
-// 3. Inicia o servidor Express
 app.listen(PORT, () => console.log(`Servidor Express rodando na porta ${PORT}`));
