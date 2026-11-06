@@ -21,12 +21,12 @@ mongoose.connect(MONGODB_URI).then(() => {
     client = new Client({
         authStrategy: new RemoteAuth({
             store: store,
-            backupSyncIntervalMs: 300000 // Sincroniza a cada 5 minutos
+            backupSyncIntervalMs: 300000
         }),
         puppeteer: {
-            // Argumentos obrigatórios para o Chrome rodar no servidor do Render
             args: ['--no-sandbox', '--disable-setuid-sandbox']
-        },    
+        },
+        // ADICIONE ESTE BLOCO PARA TRAVAR A VERSÃO DO WHATSAPP
         webVersionCache: {
             type: 'remote',
             remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
