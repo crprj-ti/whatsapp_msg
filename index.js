@@ -27,15 +27,14 @@ mongoose.connect(MONGODB_URI).then(() => {
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage', // Fundamental para Docker com pouca RAM
-                '--disable-accelerated-2d-canvas', // Desativa aceleração gráfica
+                '--disable-dev-shm-usage', 
+                '--disable-accelerated-2d-canvas', 
                 '--no-first-run',
                 '--no-zygote', 
-                '--single-process', // Roda tudo em um processo só (economiza muita RAM)
-                '--disable-gpu' // Desativa placa de vídeo
+                '--single-process', 
+                '--disable-gpu' 
             ]
         },
-        // ADICIONE ESTE BLOCO PARA TRAVAR A VERSÃO DO WHATSAPP
         webVersionCache: {
             type: 'remote',
             remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
