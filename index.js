@@ -24,7 +24,16 @@ mongoose.connect(MONGODB_URI).then(() => {
             backupSyncIntervalMs: 300000
         }),
         puppeteer: {
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage', // Fundamental para Docker com pouca RAM
+                '--disable-accelerated-2d-canvas', // Desativa aceleração gráfica
+                '--no-first-run',
+                '--no-zygote', 
+                '--single-process', // Roda tudo em um processo só (economiza muita RAM)
+                '--disable-gpu' // Desativa placa de vídeo
+            ]
         },
         // ADICIONE ESTE BLOCO PARA TRAVAR A VERSÃO DO WHATSAPP
         webVersionCache: {
