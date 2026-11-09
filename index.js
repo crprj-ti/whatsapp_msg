@@ -123,6 +123,6 @@ app.post('/enviar-mensagem', async (req, res) => {
     }
 });
 
-app.get('/', (req, res) => res.send('API WhatsApp Online (Baileys)'));
+app.get('/', (req, res) => res.send('API WhatsApp Online'));
 
 app.listen(PORT, () => console.log(`Servidor Express rodando na porta ${PORT}`));
